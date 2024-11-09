@@ -22,12 +22,13 @@
       padding: 20px;
       border-radius: 10px;
     }
-    #clock, #weather {
-      margin-top: 10px;
-      font-size: 1.2em;
+    #title {
+      font-size: 3em; /* 3x the normal size */
+      font-weight: bold;
+      font-style: italic;
     }
     .language-selector {
-      margin-top: 20px;
+      margin-top: 10px;
     }
     .language-selector button {
       background-color: #0D92F4;
@@ -36,6 +37,14 @@
       padding: 5px 10px;
       cursor: pointer;
       margin: 5px;
+    }
+    #clock-container {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.3); /* Transparent container */
+      color: #0D92F4;
+      font-size: 1.2em;
     }
     #ip-display {
       margin-top: 20px;
@@ -52,18 +61,25 @@
 </head>
 <body>
   <div class="content">
-    <h1 id="title"><strong><em>stunninflacko</em></strong></h1>
-    <p id="description">
-      Erfahrener IT-Netzwerktechniker mit umfassender Expertise in der Planung, Implementierung und Wartung robuster, skalierbarer Netzwerkinfrastrukturen. Fachkundig in Netzwerkarchitektur, Sicherheitsprotokollen und Leistungsoptimierung.
-    </p>
-    <p id="clock"></p>
-    <p id="weather">Lade Wetterdaten...</p>
+    <h1 id="title"><span style="font-weight: bold; font-style: italic;">SF</span></h1>
     
+    <!-- Language selector buttons below the title -->
     <div class="language-selector">
       <button onclick="setLanguage('de')">Deutsch</button>
       <button onclick="setLanguage('en')">English</button>
       <button onclick="setLanguage('it')">Italiano</button>
       <button onclick="setLanguage('fr')">Français</button>
+    </div>
+    
+    <p id="description">
+      Erfahrener IT-Netzwerktechniker mit umfassender Expertise in der Planung, Implementierung und Wartung robuster, skalierbarer Netzwerkinfrastrukturen. Fachkundig in Netzwerkarchitektur, Sicherheitsprotokollen und Leistungsoptimierung.
+    </p>
+
+    <!-- Transparent container for time, date, and weather -->
+    <div id="clock-container">
+      <p id="time"></p>
+      <p id="date"></p>
+      <p id="weather">Lade Wetterdaten...</p>
     </div>
 
     <p id="ip-display">
@@ -76,43 +92,31 @@
   <script>
     const translations = {
       de: {
-        title: "<strong><em>stunninflacko</em></strong>",
+        title: "<strong><em>SF</em></strong>",
         description: "Erfahrener IT-Netzwerktechniker mit umfassender Expertise in der Planung, Implementierung und Wartung robuster, skalierbarer Netzwerkinfrastrukturen. Fachkundig in Netzwerkarchitektur, Sicherheitsprotokollen und Leistungsoptimierung.",
         loadingWeather: "Lade Wetterdaten...",
         errorWeather: "Wetterdaten konnten nicht geladen werden.",
-        timeLabel: "Uhrzeit",
-        dateLabel: "Datum",
-        weatherIn: "Aktuelles Wetter in",
         ipText: "IP Adresse: <b>Klicken Sie, um anzuzeigen</b>"
       },
       en: {
-        title: "<strong><em>stunninflacko</em></strong>",
+        title: "<strong><em>SF</em></strong>",
         description: "Experienced IT Network Engineer with deep expertise in designing, implementing, and maintaining robust, scalable network infrastructures. Skilled in network architecture, security protocols, and performance optimization.",
         loadingWeather: "Loading weather data...",
         errorWeather: "Weather data could not be loaded.",
-        timeLabel: "Time",
-        dateLabel: "Date",
-        weatherIn: "Current weather in",
         ipText: "IP Address: <b>Click to reveal</b>"
       },
       it: {
-        title: "<strong><em>stunninflacko</em></strong>",
+        title: "<strong><em>SF</em></strong>",
         description: "Ingegnere IT esperto in reti con profonda esperienza nella progettazione, implementazione e manutenzione di infrastrutture di rete robuste e scalabili. Competente in architettura di rete, protocolli di sicurezza e ottimizzazione delle prestazioni.",
         loadingWeather: "Caricamento dei dati meteorologici...",
         errorWeather: "I dati meteorologici non sono stati caricati.",
-        timeLabel: "Ora",
-        dateLabel: "Data",
-        weatherIn: "Meteo attuale a",
         ipText: "Indirizzo IP: <b>Clicca per rivelare</b>"
       },
       fr: {
-        title: "<strong><em>stunninflacko</em></strong>",
+        title: "<strong><em>SF</em></strong>",
         description: "Ingénieur réseau IT expérimenté avec une grande expertise dans la conception, l'implémentation et la maintenance d'infrastructures réseau robustes et évolutives. Compétent en architecture réseau, protocoles de sécurité et optimisation des performances.",
         loadingWeather: "Chargement des données météo...",
         errorWeather: "Les données météo n'ont pas pu être chargées.",
-        timeLabel: "Heure",
-        dateLabel: "Date",
-        weatherIn: "Météo actuelle à",
         ipText: "Adresse IP : <b>Cliquez pour révéler</b>"
       }
     };
@@ -125,35 +129,18 @@
       document.getElementById('description').innerText = translations[lang].description;
       document.getElementById('weather').innerText = translations[lang].loadingWeather;
       document.getElementById('ip-text').innerHTML = translations[lang].ipText;
-      timeLabel = translations[lang].timeLabel;
-      dateLabel = translations[lang].dateLabel;
-      weatherIn = translations[lang].weatherIn;
       fetchWeather(lang); 
       updateClock(); 
     }
 
-    let timeLabel = translations['de'].timeLabel;
-    let dateLabel = translations['de'].dateLabel;
-    let weatherIn = translations['de'].weatherIn;
-
     function updateClock() {
       const now = new Date();
+      const timeString = now.toLocaleTimeString(currentLang, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      const dateString = now.toLocaleDateString(currentLang, { day: '2-digit', month: '2-digit', year: 'numeric' });
       
-      // Ensure two digits for hours, minutes, and seconds
-      const hours = now.getHours().toString().padStart(2, '0');
-      const minutes = now.getMinutes().toString().padStart(2, '0');
-      const seconds = now.getSeconds().toString().padStart(2, '0');
-      
-      const timeString = `${hours}:${minutes}:${seconds}`;
-      
-      // Ensure two digits for day and month
-      const day = now.getDate().toString().padStart(2, '0');
-      const month = (now.getMonth() + 1).toString().padStart(2, '0');
-      const year = now.getFullYear();
-      
-      const dateString = `${day}.${month}.${year}`;
-      
-      document.getElementById('clock').innerHTML = `${timeLabel}: ${timeString} <br>${dateLabel}: ${dateString}`;
+      // Separate time, date, and weather into distinct lines
+      document.getElementById('time').innerHTML = `${timeString}`;
+      document.getElementById('date').innerHTML = `${dateString}`;
     }
     
     setInterval(updateClock, 1000);
@@ -168,10 +155,10 @@
         const weatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=2500a2ede00044dbbbce1f4d58053ccb&lang=${lang}`);
         const weatherData = await weatherResponse.json();
 
-        // Truncate the temperature (remove decimal part)
         const temperature = Math.floor(weatherData.main.temp); 
         
-        document.getElementById('weather').innerText = `${weatherIn} ${location}: ${weatherData.weather[0].description}, ${temperature}°C`;
+        // Display only the location and weather without "Weather in"
+        document.getElementById('weather').innerText = `${location}: ${weatherData.weather[0].description}, ${temperature}°C`;
       } catch (error) {
         document.getElementById('weather').innerText = translations[lang].errorWeather;
       }
