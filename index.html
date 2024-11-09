@@ -41,7 +41,12 @@
       margin-top: 20px;
       font-size: 1.1em;
       color: #0D92F4;
+    }
+    #ip-text {
       cursor: pointer;
+    }
+    #ip-text b {
+      font-weight: bold;
     }
   </style>
 </head>
@@ -49,7 +54,7 @@
   <div class="content">
     <h1 id="title"><strong><em>stunninflacko</em></strong></h1>
     <p id="description">
-      Erfahrene/r IT-Netzwerktechniker/in mit umfassender Expertise in der Planung, Implementierung und Wartung robuster, skalierbarer Netzwerkinfrastrukturen. Fachkundig in Netzwerkarchitektur, Sicherheitsprotokollen und Leistungsoptimierung.
+      Erfahrener IT-Netzwerktechniker mit umfassender Expertise in der Planung, Implementierung und Wartung robuster, skalierbarer Netzwerkinfrastrukturen. Fachkundig in Netzwerkarchitektur, Sicherheitsprotokollen und Leistungsoptimierung.
     </p>
     <p id="clock"></p>
     <p id="weather">Lade Wetterdaten...</p>
@@ -61,8 +66,10 @@
       <button onclick="setLanguage('fr')">Français</button>
     </div>
 
-    <p id="ip-display" onclick="revealIP()">
-      <span id="ip-text">Klicken Sie, um die IP-Adresse anzuzeigen</span>
+    <p id="ip-display">
+      <span id="ip-text" onclick="revealIP()">
+        IP Address: <b>Click to reveal</b>
+      </span>
     </p>
   </div>
 
@@ -70,23 +77,21 @@
     const translations = {
       de: {
         title: "<strong><em>stunninflacko</em></strong>",
-        description: "Erfahrene/r IT-Netzwerktechniker/in mit umfassender Expertise in der Planung, Implementierung und Wartung robuster, skalierbarer Netzwerkinfrastrukturen. Fachkundig in Netzwerkarchitektur, Sicherheitsprotokollen und Leistungsoptimierung.",
+        description: "Erfahrener IT-Netzwerktechniker mit umfassender Expertise in der Planung, Implementierung und Wartung robuster, skalierbarer Netzwerkinfrastrukturen. Fachkundig in Netzwerkarchitektur, Sicherheitsprotokollen und Leistungsoptimierung.",
         loadingWeather: "Lade Wetterdaten...",
         errorWeather: "Wetterdaten konnten nicht geladen werden.",
         timeLabel: "Uhrzeit",
         weatherIn: "Aktuelles Wetter in",
-        ipText: "Klicken Sie, um die IP-Adresse anzuzeigen",
-        ipRevealText: "Ihre IP-Adresse ist"
+        ipText: "IP Adresse: <b>Klicken Sie, um anzuzeigen</b>"
       },
       en: {
         title: "<strong><em>stunninflacko</em></strong>",
-        description: "Experienced IT Network Engineer with a deep expertise in designing, implementing, and maintaining robust, scalable network infrastructures. Skilled in network architecture, security protocols, and performance optimization.",
+        description: "Experienced IT Network Engineer with deep expertise in designing, implementing, and maintaining robust, scalable network infrastructures. Skilled in network architecture, security protocols, and performance optimization.",
         loadingWeather: "Loading weather data...",
         errorWeather: "Weather data could not be loaded.",
         timeLabel: "Time",
         weatherIn: "Current weather in",
-        ipText: "Click to reveal IP address",
-        ipRevealText: "Your IP address is"
+        ipText: "IP Address: <b>Click to reveal</b>"
       },
       it: {
         title: "<strong><em>stunninflacko</em></strong>",
@@ -95,8 +100,7 @@
         errorWeather: "I dati meteorologici non sono stati caricati.",
         timeLabel: "Ora",
         weatherIn: "Meteo attuale a",
-        ipText: "Clicca per rivelare l'indirizzo IP",
-        ipRevealText: "Il tuo indirizzo IP è"
+        ipText: "Indirizzo IP: <b>Clicca per rivelare</b>"
       },
       fr: {
         title: "<strong><em>stunninflacko</em></strong>",
@@ -105,35 +109,37 @@
         errorWeather: "Les données météo n'ont pas pu être chargées.",
         timeLabel: "Heure",
         weatherIn: "Météo actuelle à",
-        ipText: "Cliquez pour révéler l'adresse IP",
-        ipRevealText: "Votre adresse IP est"
+        ipText: "Adresse IP : <b>Cliquez pour révéler</b>"
       }
     };
 
-    let currentLang = 'de'; // Default to German
+    let currentLang = 'en'; // Default to English
 
     function setLanguage(lang) {
       currentLang = lang; // Store the selected language
       document.getElementById('title').innerHTML = translations[lang].title; // Use innerHTML for the title to render HTML
       document.getElementById('description').innerText = translations[lang].description;
       document.getElementById('weather').innerText = translations[lang].loadingWeather;
-      document.getElementById('ip-text').innerText = translations[lang].ipText;
+      document.getElementById('ip-text').innerHTML = translations[lang].ipText; // Set the IP text with the HTML
       timeLabel = translations[lang].timeLabel;
       weatherIn = translations[lang].weatherIn;
       fetchWeather(lang); // Update weather with language
+      updateClock(); // Immediately update the clock on language change
     }
 
-    let timeLabel = translations['de'].timeLabel; // Default to German
-    let weatherIn = translations['de'].weatherIn;
+    let timeLabel = translations['en'].timeLabel; // Default to English
+    let weatherIn = translations['en'].weatherIn;
 
     function updateClock() {
       const now = new Date();
-      const timeString = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       document.getElementById('clock').innerText = `${timeLabel}: ${timeString}`;
     }
-    setInterval(updateClock, 1000);
+    
+    setInterval(updateClock, 1000); // Continue updating the clock every second
+    updateClock(); // Update immediately on page load
 
-    async function fetchWeather(lang = 'de') {
+    async function fetchWeather(lang = 'en') {
       try {
         const response = await fetch('https://ipinfo.io/json?token=2b607f3225f012');
         const data = await response.json();
@@ -153,9 +159,10 @@
       try {
         const response = await fetch('https://ipinfo.io/json?token=2b607f3225f012');
         const data = await response.json();
-        document.getElementById('ip-text').innerText = `${translations[currentLang].ipRevealText}: ${data.ip}`;
+        // Change the text to show the IP address, based on the current language
+        document.getElementById('ip-text').innerHTML = `${translations[currentLang].ipText.split('<b>')[0]} <b>${data.ip}</b>`;
       } catch (error) {
-        document.getElementById('ip-text').innerText = translations[currentLang].errorWeather;
+        document.getElementById('ip-text').innerText = `${translations[currentLang].ipText.split('<b>')[0]} Could not retrieve`;
       }
     }
   </script>
