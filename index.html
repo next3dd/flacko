@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional Network Engineer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #77CDFF;
+      color: #0D92F4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    .content {
+      max-width: 600px;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    #clock, #weather {
+      margin-top: 10px;
+      font-size: 1.2em;
+    }
+    .language-selector {
+      margin-top: 20px;
+    }
+    .language-selector button {
+      background-color: #0D92F4;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    #ip-display {
+      margin-top: 20px;
+      font-size: 1.1em;
+      color: #0D92F4;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1 id="title">Erfahrener Netzwerkingenieur</h1>
+    <p id="description">
+      Erfahrene/r IT-Netzwerktechniker/in mit umfassender Expertise in der Planung, Implementierung und Wartung robuster, skalierbarer Netzwerkinfrastrukturen. Fachkundig in Netzwerkarchitektur, Sicherheitsprotokollen und Leistungsoptimierung.
+    </p>
+    <p id="clock"></p>
+    <p id="weather">Lade Wetterdaten...</p>
+    
+    <div class="language-selector">
+      <button onclick="setLanguage('de')">Deutsch</button>
+      <button onclick="setLanguage('en')">English</button>
+      <button onclick="setLanguage('it')">Italiano</button>
+      <button onclick="setLanguage('fr')">Français</button>
+    </div>
+
+    <p id="ip-display" onclick="revealIP()">
+      <span id="ip-text">Klicken Sie, um die IP-Adresse anzuzeigen</span>
+    </p>
+  </div>
+
+  <script>
+    const translations = {
+      de: {
+        title: "Erfahrener Netzwerkingenieur",
+        description: "Erfahrene/r IT-Netzwerktechniker/in mit umfassender Expertise in der Planung, Implementierung und Wartung robuster, skalierbarer Netzwerkinfrastrukturen. Fachkundig in Netzwerkarchitektur, Sicherheitsprotokollen und Leistungsoptimierung.",
+        loadingWeather: "Lade Wetterdaten...",
+        errorWeather: "Wetterdaten konnten nicht geladen werden.",
+        timeLabel: "Uhrzeit",
+        weatherIn: "Aktuelles Wetter in",
+        ipText: "Klicken Sie, um die IP-Adresse anzuzeigen"
+      },
+      en: {
+        title: "Experienced Network Engineer",
+        description: "Experienced IT Network Engineer with a deep expertise in designing, implementing, and maintaining robust, scalable network infrastructures. Skilled in network architecture, security protocols, and performance optimization.",
+        loadingWeather: "Loading weather data...",
+        errorWeather: "Weather data could not be loaded.",
+        timeLabel: "Time",
+        weatherIn: "Current weather in",
+        ipText: "Click to reveal IP address"
+      },
+      it: {
+        title: "Ingegnere di rete esperto",
+        description: "Ingegnere IT esperto in reti con profonda esperienza nella progettazione, implementazione e manutenzione di infrastrutture di rete robuste e scalabili. Competente in architettura di rete, protocolli di sicurezza e ottimizzazione delle prestazioni.",
+        loadingWeather: "Caricamento dei dati meteorologici...",
+        errorWeather: "I dati meteorologici non sono stati caricati.",
+        timeLabel: "Ora",
+        weatherIn: "Meteo attuale a",
+        ipText: "Clicca per rivelare l'indirizzo IP"
+      },
+      fr: {
+        title: "Ingénieur réseau expérimenté",
+        description: "Ingénieur réseau IT expérimenté avec une grande expertise dans la conception, l'implémentation et la maintenance d'infrastructures réseau robustes et évolutives. Compétent en architecture réseau, protocoles de sécurité et optimisation des performances.",
+        loadingWeather: "Chargement des données météo...",
+        errorWeather: "Les données météo n'ont pas pu être chargées.",
+        timeLabel: "Heure",
+        weatherIn: "Météo actuelle à",
+        ipText: "Cliquez pour révéler l'adresse IP"
+      }
+    };
+
+    function setLanguage(lang) {
+      document.getElementById('title').innerText = translations[lang].title;
+      document.getElementById('description').innerText = translations[lang].description;
+      document.getElementById('weather').innerText = translations[lang].loadingWeather;
+      document.getElementById('ip-text').innerText = translations[lang].ipText;
+      timeLabel = translations[lang].timeLabel;
+      weatherIn = translations[lang].weatherIn;
+      fetchWeather(lang); // Update weather with language
+    }
+
+    let timeLabel = translations['de'].timeLabel; // Default to German
+    let weatherIn = translations['de'].weatherIn;
+
+    function updateClock() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      document.getElementById('clock').innerText = `${timeLabel}: ${timeString}`;
+    }
+    setInterval(updateClock, 1000);
+
+    async function fetchWeather(lang = 'de') {
+      try {
+        const response = await fetch('https://ipinfo.io/json?token=2b607f3225f012');
+        const data = await response.json();
+        const location = data.city;
+        
+        const weatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=2500a2ede00044dbbbce1f4d58053ccb&lang=${lang}`);
+        const weatherData = await weatherResponse.json();
+        
+        document.getElementById('weather').innerText = `${weatherIn} ${location}: ${weatherData.weather[0].description}, ${weatherData.main.temp}°C`;
+      } catch (error) {
+        document.getElementById('weather').innerText = translations[lang].errorWeather;
+      }
+    }
+    fetchWeather(); // Initial weather fetch on load
+
+    async function revealIP() {
+      try {
+        const response = await fetch('https://ipinfo.io/json?token=2b607f3225f012');
+        const data = await response.json();
+        document.getElementById('ip-text').innerText = `Ihre IP-Adresse: ${data.ip}`;
+      } catch (error) {
+        document.getElementById('ip-text').innerText = "IP-Adresse konnte nicht geladen werden.";
+      }
+    }
+  </script>
+</body>
+</html>
